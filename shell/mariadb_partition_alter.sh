@@ -10,9 +10,11 @@ PASSWORD = ""
 DB = ""
 TABLE_NAME = ""
 
-mysql -u$USERNAME -p$PASSWORD $DB -e "ALTER TABLE $TABLE_NAME DROP PARTITION from$PDATE"
-
 mysql -u$USERNAME -p$PASSWORD $DB -e "ALTER TABLE $TABLE_NAME \
                 REORGANIZE PARTITION future INTO ( \
                 PARTITION from$NDATE VALUES LESS THAN (TO_DAYS('$N_DATE')), \
-                PARTITION future     VALUES LESS THAN MAXVALUE) "
+                PARTITION future     VALUES LESS THAN MAXVALUE) "   \
+                        || ( echo "ReOrganize_Error" && exit 1 )
+
+mysql -u$USERNAME -p$PASSWORD $DB -e "ALTER TABLE $TABLE_NAME DROP PARTITION from$PDATE" \
+                             || ( echo "Partition_Error" && exit 1 )
